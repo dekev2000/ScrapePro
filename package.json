@@ -1,0 +1,23 @@
+{
+  "name": "scrapepro",
+  "version": "1.0.0",
+  "description": "Business Information Scraping Dashboard",
+  "main": "index.js",
+  "scripts": {
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "setup:dev": "cd backend && npm run seed:dev",
+    "setup:dev:clear": "cd backend && npm run seed:dev:clear"
+  },
+  "keywords": [
+    "scraping",
+    "business",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+} 

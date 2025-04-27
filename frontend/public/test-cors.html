@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    
+    <button id="testBtn">Test API Connection</button>
+    
+    <div id="status" class="status"></div>
+    
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+    
+    <script>
+        document.getElementById('testBtn').addEventListener('click', testApi);
+        
+        async function testApi() {
+            const statusEl = document.getElementById('status');
+            const responseEl = document.getElementById('response');
+            
+            statusEl.textContent = 'Testing...';
+            statusEl.className = 'status';
+            responseEl.textContent = '';
+            
+            try {
+                // Test with a unique email to avoid conflicts
+                const timestamp = Date.now();
+                const email = `test-${timestamp}@example.com`;
+                
+                // Log the request
+                const requestLog = `Sending POST request to http://localhost:3000/api/auth/register\n`;
+                responseEl.textContent += requestLog;
+                
+                const response = await fetch('http://localhost:3000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: 'Test User',
+                        email: email,
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Success
+                statusEl.textContent = `Success! Status: ${response.status}`;
+                statusEl.className = 'status success';
+                
+                // Format the response nicely
+                responseEl.textContent += `Status: ${response.status}\n`;
+                responseEl.textContent += `Response Headers:\n${formatHeaders(response.headers)}\n`;
+                responseEl.textContent += `Response Body:\n${JSON.stringify(data, null, 2)}`;
+                
+            } catch (error) {
+                // Error
+                statusEl.textContent = `Error: ${error.message}`;
+                statusEl.className = 'status error';
+                responseEl.textContent += `\nError: ${error.message}\n`;
+                
+                // Check if it might be a CORS issue
+                if (error.message.includes('CORS') || error.message.includes('blocked')) {
+                    responseEl.textContent += '\nThis appears to be a CORS issue. Make sure the server has proper CORS headers configured.';
+                }
+                
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    responseEl.textContent += '\nThis appears to be a network connectivity issue. Make sure the server is running at http://localhost:3000';
+                }
+            }
+        }
+        
+        function formatHeaders(headers) {
+            let result = '';
+            headers.forEach((value, name) => {
+                result += `${name}: ${value}\n`;
+            });
+            return result;
+        }
+        
+        // Auto-run on page load
+        window.onload = testApi;
+    </script>
+</body>
+</html> 

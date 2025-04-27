@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DeepSite Watermark Remover</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 15px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      color: #4f46e5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    h1 img {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .status {
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #f3f4f6;
+      border-left: 4px solid #9ca3af;
+    }
+    
+    .status.active {
+      background-color: #ecfdf5;
+      border-left-color: #10b981;
+    }
+    
+    .status.inactive {
+      background-color: #fff7ed;
+      border-left-color: #f97316;
+    }
+    
+    .status-icon {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-icon.active {
+      background-color: #10b981;
+    }
+    
+    .status-icon.inactive {
+      background-color: #f97316;
+    }
+    
+    .instructions {
+      margin-top: 15px;
+    }
+    
+    .instructions h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    
+    .instructions ol {
+      padding-left: 20px;
+      margin: 0;
+    }
+    
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    
+    .instructions li:last-child {
+      margin-bottom: 0;
+    }
+    
+    .extension-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background-color: #f3f4f6;
+      border-radius: 5px;
+      text-decoration: none;
+      color: #4b5563;
+      margin-top: 15px;
+      transition: background-color 0.2s;
+    }
+    
+    .extension-link:hover {
+      background-color: #e5e7eb;
+    }
+    
+    .extension-link img {
+      width: 20px;
+      height: 20px;
+    }
+    
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1><img src="icons/icon48.png" alt="Logo"> DeepSite Watermark Remover</h1>
+  
+  <div id="status" class="status">
+    <span id="status-icon" class="status-icon"></span>
+    <span id="status-text">Checking current page...</span>
+  </div>
+  
+  <div class="instructions">
+    <h2>How it works:</h2>
+    <ol>
+      <li>Navigate to any DeepSite static preview URL (ending with .static.hf.space)</li>
+      <li>The extension will automatically remove the DeepSite watermark</li>
+      <li>Use GoFullPage or any screenshot tool to capture the clean page</li>
+    </ol>
+  </div>
+  
+  <a href="https://chrome.google.com/webstore/detail/gofullpage-full-page-scre/fdpohaocaechififmbbbbbknoalclacl" target="_blank" class="extension-link">
+    <img src="https://lh3.googleusercontent.com/vvp6Ev33xPerWBBOtIRyAHl7k5c4wfZpQYqk2UvUFtuV1XWzfvGdJWy4qKdc0yVaS7__TxMYs-NX=w128-h128-e365-rj-sc0x00ffffff" alt="GoFullPage icon">
+    Get GoFullPage for screenshots
+  </a>
+  
+  <footer>
+    Created for ScrapDev Project
+  </footer>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
