@@ -10,42 +10,20 @@
         {{ error }}
       </div>
 
-      <form
-        @submit.prevent="handleLogin"
-        class="login-form"
-      >
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
+      <div class="login-info">
+        <p>Pour le développement, vous pouvez vous connecter sans identifiants.</p>
+        <p>Cliquez simplement sur le bouton ci-dessous pour vous connecter en tant qu'administrateur.</p>
+      </div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-
-        <div class="form-actions">
-          <button
-            type="submit"
-            class="login-button"
-            :disabled="loading"
-          >
-            {{ loading ? 'Logging in...' : 'Login' }}
-          </button>
-        </div>
-      </form>
+      <div class="form-actions">
+        <button
+          class="login-button"
+          @click="handleLogin"
+          :disabled="loading"
+        >
+          {{ loading ? 'Connexion en cours...' : 'Se connecter automatiquement' }}
+        </button>
+      </div>
 
       <div class="login-footer">
         <p>Don't have an account? <router-link to="/auth/register">Register</router-link></p>
@@ -75,9 +53,10 @@ const handleLogin = async () => {
   error.value = "";
 
   try {
+    // Utiliser des identifiants par défaut pour le développement
     await authStore.login({
-      email: email.value,
-      password: password.value,
+      email: "admin@example.com",
+      password: "password123",
     });
 
     // Redirect to dashboard on successful login
@@ -126,10 +105,18 @@ const handleLogin = async () => {
   font-size: 0.875rem;
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+.login-info {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.login-info p {
+  margin: 0.5rem 0;
 }
 
 .form-group {

@@ -37,39 +37,32 @@ const generateToken = (userId: string) => {
 // Direct mock login function
 export const mockLogin = async (email: string, password: string) => {
   console.log('Direct mock login with:', email, password);
-  
-  // Find user with matching credentials
-  const user = mockUsers.find(u => 
-    u.email.toLowerCase() === email.toLowerCase() && u.password === password
-  );
-  
-  if (user) {
-    console.log('User found, returning success');
-    // Create a user object without the password
-    const { password, ...userWithoutPassword } = user;
-    
-    return {
-      success: true,
-      user: userWithoutPassword,
-      token: generateToken(user.id)
-    };
-  } else {
-    console.log('Invalid credentials, throwing error');
-    throw new Error('Invalid credentials');
-  }
+
+  // Auto-login with admin user for development
+  const adminUser = mockUsers[0];
+  console.log('Auto-login with admin user');
+
+  // Create a user object without the password
+  const { password: _, ...userWithoutPassword } = adminUser;
+
+  return {
+    success: true,
+    user: userWithoutPassword,
+    token: generateToken(adminUser.id)
+  };
 };
 
 // Direct mock register function
 export const mockRegister = async (name: string, email: string, password: string) => {
   console.log('Direct mock register with:', name, email);
-  
+
   // Check if user already exists
   const existingUser = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-  
+
   if (existingUser) {
     throw new Error('User already exists');
   }
-  
+
   // Create new user
   const newUser = {
     id: `${mockUsers.length + 1}`,
@@ -79,13 +72,13 @@ export const mockRegister = async (name: string, email: string, password: string
     role: 'user',
     createdAt: new Date().toISOString()
   };
-  
+
   // Add to mock users (in a real app this would persist to a database)
   mockUsers.push(newUser);
-  
+
   // Return user without password
   const { password: _, ...userWithoutPassword } = newUser;
-  
+
   return {
     success: true,
     user: userWithoutPassword,

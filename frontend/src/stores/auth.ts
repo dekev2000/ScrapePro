@@ -1,45 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
-import { mockLogin, mockRegister, mockLogout, mockGetUser } from '../services/directMockAuth'
+// No need for axios import
+import { mockLogin, mockRegister, mockLogout } from '../services/directMockAuth'
 
-// Create a dedicated API instance for authentication
-const authApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  timeout: 10000 // 10 second timeout
-})
-
-// Add request/response logs
-authApi.interceptors.request.use(
-  config => {
-    console.log(`🔄 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, config.data || {})
-    return config
-  },
-  error => {
-    console.error('❌ API Request Error:', error)
-    return Promise.reject(error)
-  }
-)
-
-authApi.interceptors.response.use(
-  response => {
-    console.log(`✅ API Response [${response.status}]:`, response.data)
-    return response
-  },
-  error => {
-    if (error.response) {
-      console.error(`❌ API Error Response [${error.response.status}]:`, error.response.data)
-    } else if (error.request) {
-      console.error('❌ API No Response:', error.request)
-    } else {
-      console.error('❌ API Request Setup Error:', error.message)
-    }
-    return Promise.reject(error)
-  }
-)
+// No need for a dedicated API instance since we're using mock data only
+// We'll log authentication actions for debugging
+const logAuthAction = (action: string, data?: any) => {
+  console.log(`🔐 Auth Action: ${action}`, data ?? {})
+}
 
 interface User {
   id: string
@@ -75,13 +43,13 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (storedToken) {
       token.value = storedToken
-      authApi.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
     }
 
     if (storedUser) {
       try {
         user.value = JSON.parse(storedUser)
       } catch (e) {
+        console.error('Failed to parse stored user data:', e)
         localStorage.removeItem('user')
       }
     }
@@ -94,24 +62,22 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = userData
     token.value = tokenValue
 
-    // Set axios auth header
-    authApi.defaults.headers.common['Authorization'] = `Bearer ${tokenValue}`
-
     // Save to localStorage
     localStorage.setItem('token', tokenValue)
     localStorage.setItem('user', JSON.stringify(userData))
+
+    logAuthAction('setAuthData', { user: userData })
   }
 
   const clearAuthData = () => {
     user.value = null
     token.value = null
 
-    // Remove axios auth header
-    delete authApi.defaults.headers.common['Authorization']
-
     // Clear localStorage
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+
+    logAuthAction('clearAuthData')
   }
 
   const login = async (credentials: LoginCredentials) => {
@@ -119,39 +85,15 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      console.log('Making login request...')
+      logAuthAction('login', { email: credentials.email })
 
-      // Use direct mock login in development mode
-      if (import.meta.env.DEV) {
-        console.log('Using direct mock login');
-        try {
-          const response = await mockLogin(credentials.email, credentials.password);
-          setAuthData(response.user, response.token);
-          return response;
-        } catch (mockErr: any) {
-          console.error('Mock login error:', mockErr);
-          error.value = mockErr.message || 'Invalid credentials';
-          throw error.value;
-        }
-      }
-
-      // Fall back to real API in production
-      const response = await authApi.post('/auth/login', credentials)
-
-      if (response.data.success) {
-        setAuthData(response.data.user, response.data.token)
-      } else {
-        throw new Error(response.data.message || 'Login failed')
-      }
-
-      return response.data
+      // Use mock login
+      const response = await mockLogin(credentials.email, credentials.password)
+      setAuthData(response.user, response.token)
+      return response
     } catch (err: any) {
-      console.error('Login error details:', err)
-      if (err.message === 'Network Error') {
-        error.value = 'Cannot connect to server. Please check if backend service is running.'
-      } else {
-        error.value = err.response?.data?.message || err.message || 'Login failed'
-      }
+      console.error('Login error:', err)
+      error.value = err.message ?? 'Invalid credentials'
       throw error.value
     } finally {
       loading.value = false
@@ -163,43 +105,19 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      console.log('Making register request...')
+      logAuthAction('register', { email: registerData.email, name: registerData.name })
 
-      // Use direct mock register in development mode
-      if (import.meta.env.DEV) {
-        console.log('Using direct mock register');
-        try {
-          const response = await mockRegister(
-            registerData.name,
-            registerData.email,
-            registerData.password
-          );
-          setAuthData(response.user, response.token);
-          return response;
-        } catch (mockErr: any) {
-          console.error('Mock register error:', mockErr);
-          error.value = mockErr.message || 'Registration failed';
-          throw error.value;
-        }
-      }
-
-      // Fall back to real API in production
-      const response = await authApi.post('/auth/register', registerData)
-
-      if (response.data.success) {
-        setAuthData(response.data.user, response.data.token)
-      } else {
-        throw new Error(response.data.message || 'Registration failed')
-      }
-
-      return response.data
+      // Use mock register
+      const response = await mockRegister(
+        registerData.name,
+        registerData.email,
+        registerData.password
+      )
+      setAuthData(response.user, response.token)
+      return response
     } catch (err: any) {
-      console.error('Registration error details:', err)
-      if (err.message === 'Network Error') {
-        error.value = 'Cannot connect to server. Please check if backend service is running.'
-      } else {
-        error.value = err.response?.data?.error || err.message || 'Registration failed'
-      }
+      console.error('Registration error:', err)
+      error.value = err.message ?? 'Registration failed'
       throw error.value
     } finally {
       loading.value = false
@@ -210,16 +128,10 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
 
     try {
-      // Use direct mock logout in development mode
-      if (import.meta.env.DEV) {
-        console.log('Using direct mock logout');
-        await mockLogout();
-      } else if (token.value) {
-        // Use real API in production
-        await authApi.get('/auth/logout')
-      }
+      logAuthAction('logout')
+      await mockLogout()
     } catch (err) {
-      console.error('Logout API error:', err)
+      console.error('Logout error:', err)
     } finally {
       clearAuthData()
       loading.value = false
@@ -233,23 +145,13 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await authApi.get('/auth/me')
+      logAuthAction('getUser')
 
-      if (response.data.success) {
-        user.value = response.data.data
-        localStorage.setItem('user', JSON.stringify(response.data.data))
-      } else {
-        throw new Error(response.data.message || 'Failed to get user data')
-      }
-
-      return response.data.data
+      // Just return the current user from state
+      return user.value
     } catch (err: any) {
-      // If 401, clear auth state
-      if (err.response?.status === 401) {
-        clearAuthData()
-      }
-
-      error.value = err.response?.data?.message || err.message || 'Failed to get user data'
+      console.error('Get user error:', err)
+      error.value = err.message ?? 'Failed to get user data'
       throw error.value
     } finally {
       loading.value = false
@@ -264,18 +166,22 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await authApi.put('/auth/updatedetails', updateData)
+      logAuthAction('updateUserDetails', updateData)
 
-      if (response.data.success) {
-        user.value = response.data.data
-        localStorage.setItem('user', JSON.stringify(response.data.data))
-      } else {
-        throw new Error(response.data.message || 'Failed to update profile')
+      // Update the user in state
+      if (user.value) {
+        const updatedUser = {
+          ...user.value,
+          ...updateData
+        }
+        user.value = updatedUser
+        localStorage.setItem('user', JSON.stringify(updatedUser))
       }
 
-      return response.data.data
+      return user.value
     } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to update profile'
+      console.error('Update user details error:', err)
+      error.value = err.message ?? 'Failed to update profile'
       throw error.value
     } finally {
       loading.value = false
@@ -290,15 +196,13 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await authApi.put('/auth/updatepassword', updateData)
+      logAuthAction('updatePassword')
 
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to update password')
-      }
-
+      // Just pretend it worked
       return true
     } catch (err: any) {
-      error.value = err.response?.data?.message || err.message || 'Failed to update password'
+      console.error('Update password error:', err)
+      error.value = err.message ?? 'Failed to update password'
       throw error.value
     } finally {
       loading.value = false

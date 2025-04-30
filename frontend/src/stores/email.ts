@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
 
 interface EmailTemplate {
   _id: string
@@ -384,18 +383,39 @@ Your Web Design Team`,
     error.value = null
 
     try {
-      const response = await axios.post('/emails/templates', templateData)
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      if (response.data.success) {
-        const newTemplate = response.data.data
-        templates.value.push(newTemplate)
-        return newTemplate
-      } else {
-        throw new Error(response.data.error || 'Failed to create email template')
+      // Generate a new ID
+      const maxId = Math.max(...templates.value.map(t => parseInt(t._id)), 0)
+      const newId = (maxId + 1).toString()
+
+      // Create the new template
+      const newTemplate: EmailTemplate = {
+        _id: newId,
+        name: templateData.name ?? 'New Template',
+        subject: templateData.subject ?? 'Subject',
+        body: templateData.body ?? '',
+        category: templateData.category ?? 'other',
+        variables: templateData.variables ?? [],
+        createdBy: 'current-user',
+        isActive: true,
+        usage: {
+          sentCount: 0,
+          openRate: 0,
+          responseRate: 0
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
+
+      // Add to templates
+      templates.value.push(newTemplate)
+
+      return newTemplate
     } catch (err: any) {
       console.error('Error creating email template:', err)
-      error.value = err.response?.data?.error || err.message || 'Failed to create email template'
+      error.value = err.message ?? 'Failed to create email template'
       throw error.value
     } finally {
       loading.value = false
@@ -407,28 +427,35 @@ Your Web Design Team`,
     error.value = null
 
     try {
-      const response = await axios.put(`/emails/templates/${id}`, templateData)
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      if (response.data.success) {
-        const updatedTemplate = response.data.data
+      // Find the template
+      const index = templates.value.findIndex(template => template._id === id)
 
-        // Update template in the templates array
-        const index = templates.value.findIndex(template => template._id === id)
-        if (index !== -1) {
-          templates.value[index] = updatedTemplate
-        }
-
-        if (currentTemplate.value && currentTemplate.value._id === id) {
-          currentTemplate.value = updatedTemplate
-        }
-
-        return updatedTemplate
-      } else {
-        throw new Error(response.data.error || 'Failed to update email template')
+      if (index === -1) {
+        throw new Error('Template not found')
       }
+
+      // Update the template
+      const updatedTemplate = {
+        ...templates.value[index],
+        ...templateData,
+        updatedAt: new Date().toISOString()
+      }
+
+      // Replace in the array
+      templates.value[index] = updatedTemplate
+
+      // Update current template if needed
+      if (currentTemplate.value && currentTemplate.value._id === id) {
+        currentTemplate.value = updatedTemplate
+      }
+
+      return updatedTemplate
     } catch (err: any) {
       console.error(`Error updating email template ${id}:`, err)
-      error.value = err.response?.data?.error || err.message || 'Failed to update email template'
+      error.value = err.message ?? 'Failed to update email template'
       throw error.value
     } finally {
       loading.value = false
@@ -440,23 +467,28 @@ Your Web Design Team`,
     error.value = null
 
     try {
-      const response = await axios.delete(`/emails/templates/${id}`)
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      if (response.data.success) {
-        // Remove template from the templates array
-        templates.value = templates.value.filter(template => template._id !== id)
+      // Find the template
+      const index = templates.value.findIndex(template => template._id === id)
 
-        if (currentTemplate.value && currentTemplate.value._id === id) {
-          currentTemplate.value = null
-        }
-
-        return true
-      } else {
-        throw new Error(response.data.error || 'Failed to delete email template')
+      if (index === -1) {
+        throw new Error('Template not found')
       }
+
+      // Remove from the array
+      templates.value = templates.value.filter(template => template._id !== id)
+
+      // Clear current template if needed
+      if (currentTemplate.value && currentTemplate.value._id === id) {
+        currentTemplate.value = null
+      }
+
+      return true
     } catch (err: any) {
       console.error(`Error deleting email template ${id}:`, err)
-      error.value = err.response?.data?.error || err.message || 'Failed to delete email template'
+      error.value = err.message ?? 'Failed to delete email template'
       throw error.value
     } finally {
       loading.value = false

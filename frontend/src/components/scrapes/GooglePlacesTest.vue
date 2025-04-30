@@ -14,6 +14,10 @@
           required
         />
         <span class="help-text">Votre clé API Google Places</span>
+        <div class="api-key-info">
+          <i class="fas fa-info-circle"></i>
+          {{ apiKeyInfo }}
+        </div>
       </div>
 
       <div class="form-group">
@@ -389,15 +393,19 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
-import { googlePlacesProxyService } from "@/services/googlePlacesProxyService";
+import { mockGooglePlacesService } from "@/services/mockGooglePlacesService";
 import { useToast } from "@/composables/useToast";
 import { useBusinessStore } from "@/stores/business";
+
+// Utiliser le service mockGooglePlacesService qui utilise l'API réelle pour Google Places
+// mais des données factices pour le reste
+const googlePlacesService = mockGooglePlacesService;
 
 const toast = useToast();
 const businessStore = useBusinessStore();
 
 // État du formulaire
-const apiKey = ref("");
+const apiKey = ref(""); // Vous devez fournir votre propre clé API Google Places ici
 const location = ref("");
 const keyword = ref("");
 const radius = ref(5000);
@@ -406,6 +414,11 @@ const searchMethod = ref("radius");
 const opennow = ref(false);
 const minprice = ref("");
 const maxprice = ref("");
+
+// Ajouter un message d'information sur la clé API
+const apiKeyInfo = ref(
+  "Pour utiliser cette fonctionnalité, vous devez fournir une clé API Google Places valide. Vous pouvez en créer une dans la console Google Cloud Platform."
+);
 
 // État des résultats
 const results = ref<any[]>([]);
@@ -470,22 +483,20 @@ const searchPlaces = async () => {
       searchParams.maxprice = parseInt(maxprice.value);
     }
 
-    // Utiliser uniquement le service proxy pour éviter les problèmes CORS
+    // Utiliser le service configuré (mock ou proxy)
     try {
       // Ajouter la langue par défaut si non spécifiée
       if (!searchParams.language) {
         searchParams.language = "fr";
       }
 
-      const response = await googlePlacesProxyService.nearbySearch(
-        searchParams
-      );
+      const response = await googlePlacesService.nearbySearch(searchParams);
 
       results.value = response.results;
       nextPageToken.value = response.nextPageToken;
       apiUsage.nearbySearch++;
-    } catch (proxyError) {
-      console.error("Erreur avec le proxy:", proxyError);
+    } catch (serviceError) {
+      console.error("Erreur lors de la recherche:", serviceError);
       error.value =
         "Erreur lors de la communication avec l'API Google Places. Veuillez vérifier votre clé API et réessayer.";
       toast.error(error.value);
@@ -515,9 +526,9 @@ const loadNextPage = async () => {
   const previousResultsCount = results.value.length;
 
   try {
-    // Utiliser uniquement le service proxy pour éviter les problèmes CORS
+    // Utiliser le service configuré (mock ou proxy)
     try {
-      const response = await googlePlacesProxyService.getNextPage(
+      const response = await googlePlacesService.getNextPage(
         nextPageToken.value,
         apiKey.value
       );
@@ -525,8 +536,11 @@ const loadNextPage = async () => {
       results.value = [...results.value, ...response.results];
       nextPageToken.value = response.nextPageToken;
       apiUsage.nearbySearch++;
-    } catch (proxyError) {
-      console.error("Erreur avec le proxy:", proxyError);
+    } catch (serviceError) {
+      console.error(
+        "Erreur lors du chargement de la page suivante:",
+        serviceError
+      );
       toast.error(
         "Erreur lors du chargement des résultats supplémentaires. Veuillez réessayer."
       );
@@ -561,34 +575,18 @@ const loadPlaceDetails = async (placeId: string, index: number) => {
   try {
     let details: any;
 
-    // Utiliser uniquement le service proxy pour éviter les problèmes CORS
+    // Utiliser le service configuré (mock ou proxy)
     try {
-      details = await googlePlacesProxyService.getPlaceDetails(
+      details = await googlePlacesService.getPlaceDetails(
         placeId,
         apiKey.value
       );
       apiUsage.placeDetails++;
-    } catch (proxyError) {
-      console.error("Erreur avec le proxy:", proxyError);
+    } catch (serviceError) {
+      console.error("Erreur lors du chargement des détails:", serviceError);
 
-      // Afficher plus de détails sur l'erreur
-      if (proxyError.response) {
-        console.error("Données de réponse d'erreur:", proxyError.response.data);
-        console.error("Statut d'erreur:", proxyError.response.status);
-
-        // Afficher un message d'erreur plus précis
-        if (proxyError.response.data && proxyError.response.data.error) {
-          toast.error(`Erreur: ${proxyError.response.data.error}`);
-        } else {
-          toast.error(
-            `Erreur ${proxyError.response.status}: Erreur lors du chargement des détails.`
-          );
-        }
-      } else {
-        toast.error(
-          "Erreur lors du chargement des détails. Veuillez réessayer."
-        );
-      }
+      // Afficher un message d'erreur
+      toast.error("Erreur lors du chargement des détails. Veuillez réessayer.");
 
       loadingDetails.value = null;
       return;
@@ -770,8 +768,8 @@ const extractEmailsFromWebsite = async (website: string, index: number) => {
   };
 
   try {
-    // Appeler le service d'extraction d'emails
-    const response = await googlePlacesProxyService.extractEmails(website);
+    // Appeler le service configuré (mock ou proxy)
+    const response = await googlePlacesService.extractEmails(website);
 
     if (response.emails && response.emails.length > 0) {
       // Mettre à jour les emails trouvés
@@ -839,6 +837,22 @@ const extractEmailsFromWebsite = async (website: string, index: number) => {
   margin-top: 4px;
   font-size: 12px;
   color: #6b7280;
+}
+
+.api-key-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.api-key-info i {
+  margin-top: 2px;
 }
 
 .required {
