@@ -12,11 +12,12 @@ The project is divided into two main parts:
 ## Features
 
 - **Authentication & Security**: Secure login for admins and collaborators.
-- **Scraping Module**: Define and manage scraping jobs.
-- **Data Management**: View, search, and filter scraped business information.
-- **Integration with Site Generation APIs**: Generate website previews using external APIs.
-- **Email Outreach Automation**: Manage email templates and send communications.
-- **Analytics & Reporting**: View dashboards and reports on system activity.
+- **Google Places API Integration**: Search and import businesses using Google Places API.
+- **Business Management**: View, search, and filter imported business information.
+- **Prospect Pipeline**: Convert businesses to prospects and manage them through the sales pipeline.
+- **DeepSite AI Integration**: Generate websites using DeepSite AI generator with iframe embedding.
+- **Email Outreach**: Send personalized emails with template support and shortcode replacement.
+- **Client Management**: Track client status and manage client information.
 - **Task Management**: Organize work with a kanban board for tasks.
 - **Global Search**: Search across all data with a unified search interface.
 - **Dark/Light Mode**: Toggle between dark and light themes.
@@ -53,9 +54,7 @@ The project is divided into two main parts:
    JWT_SECRET=your_jwt_secret_key_change_in_production
    JWT_EXPIRE=30d
    GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-   INSEE_API_KEY=your_insee_api_key
-   DEEPSITE_API_KEY=your_deepsite_api_key
-   BOLT_API_KEY=your_bolt_api_key
+   GOOGLE_GEOCODING_API_KEY=your_google_geocoding_api_key
    ```
 
 4. Start the development server:

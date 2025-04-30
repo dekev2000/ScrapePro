@@ -205,10 +205,12 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useBusinessStore } from "@/stores/business";
+import { useToast } from "@/composables/useToast";
 
 const router = useRouter();
 const route = useRoute();
 const businessStore = useBusinessStore();
+const toast = useToast();
 
 // State
 const loading = ref(true);
@@ -303,23 +305,45 @@ const formatWebsite = (website: string) => {
 };
 
 const viewClientDetails = (business: any) => {
-  console.log("View details for:", business.name);
-  // In a real app, this would open a modal or navigate to a details page
+  // Open a modal with client details
+  toast.info(`Viewing details for ${business.name}`);
+  // In a real implementation, this would open a modal with client details
 };
 
 const editClient = (business: any) => {
-  console.log("Edit client:", business.name);
-  // In a real app, this would open a modal with a form
+  // Open a modal to edit client information
+  toast.info(`Editing client ${business.name}`);
+  // In a real implementation, this would open a modal with a form to edit client information
 };
 
-const generatePreview = (business: any) => {
-  console.log("Generate preview for:", business.name);
-  // In a real app, this would call the API to generate a preview
+const generatePreview = async (business: any) => {
+  try {
+    toast.info(`Generating preview for ${business.name}...`);
+    // In a real implementation, this would call the API to generate a preview
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    toast.success(`Preview generated for ${business.name}`);
+
+    // Update the business in the store
+    await businessStore.updateBusiness(business._id, {
+      websiteGeneration: {
+        status: "generated",
+        previewUrl: `https://example.com/${business._id}`,
+        generatedAt: new Date().toISOString(),
+      },
+    });
+
+    // Refresh the businesses list
+    await fetchBusinesses();
+  } catch (error) {
+    console.error("Failed to generate preview:", error);
+    toast.error(`Failed to generate preview: ${(error as Error).message}`);
+  }
 };
 
 const sendEmail = (business: any) => {
-  console.log("Send email to:", business.name);
-  // In a real app, this would open a modal with an email form
+  // Open a modal to send an email to the client
+  toast.info(`Sending email to ${business.name}`);
+  // In a real implementation, this would open a modal with an email form
 };
 
 // Lifecycle hooks

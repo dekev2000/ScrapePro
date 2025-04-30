@@ -10,20 +10,6 @@
           <i class="fas fa-sync"></i>
           Refresh
         </button>
-        <button
-          class="test-btn"
-          @click="testModal"
-        >
-          <i class="fas fa-envelope"></i>
-          Test Email Modal
-        </button>
-        <button
-          class="test-btn"
-          @click="testDetailsModal"
-        >
-          <i class="fas fa-info-circle"></i>
-          Test Details Modal
-        </button>
       </div>
     </div>
 
@@ -120,8 +106,8 @@
             <td>{{ business.websiteGeneration.generatedAt ? formatDate(business.websiteGeneration.generatedAt) : 'N/A' }}</td>
             <td>
               <a
-                v-if="business.websiteGeneration.previewLink"
-                :href="business.websiteGeneration.previewLink"
+                v-if="business.websiteGeneration.previewUrl || business.websiteGeneration.previewLink"
+                :href="business.websiteGeneration.previewUrl || business.websiteGeneration.previewLink"
                 target="_blank"
                 class="preview-link"
               >
@@ -270,15 +256,15 @@
 
               <div
                 class="detail-row"
-                v-if="selectedBusiness.websiteGeneration.previewLink"
+                v-if="selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink"
               >
                 <span class="detail-label">Preview URL:</span>
                 <span class="detail-value">
                   <a
-                    :href="selectedBusiness.websiteGeneration.previewLink"
+                    :href="selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink"
                     target="_blank"
                   >
-                    {{ selectedBusiness.websiteGeneration.previewLink }}
+                    {{ selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink }}
                   </a>
                 </span>
               </div>
@@ -304,8 +290,8 @@
               @click="showDetailsModal = false"
             >Close</button>
             <a
-              v-if="selectedBusiness && selectedBusiness.websiteGeneration.previewLink"
-              :href="selectedBusiness.websiteGeneration.previewLink"
+              v-if="selectedBusiness && (selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink)"
+              :href="selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink"
               target="_blank"
               class="btn primary"
             >
@@ -390,10 +376,10 @@
                 </div>
                 <div
                   class="website-preview"
-                  v-if="selectedBusiness.websiteGeneration && selectedBusiness.websiteGeneration.previewLink"
+                  v-if="selectedBusiness.websiteGeneration && (selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink)"
                 >
                   <a
-                    :href="selectedBusiness.websiteGeneration.previewLink"
+                    :href="selectedBusiness.websiteGeneration.previewUrl || selectedBusiness.websiteGeneration.previewLink"
                     target="_blank"
                     class="preview-link"
                   >
@@ -973,97 +959,6 @@ const submitSimpleEmail = async () => {
     // Reset loading state
     isSendingEmail.value = false;
   }
-};
-
-const testModal = () => {
-  console.log("testModal called");
-  // Use the first business in the list for testing
-  if (filteredBusinesses.value.length > 0) {
-    selectedBusiness.value = filteredBusinesses.value[0];
-  } else {
-    // Create a dummy business for testing
-    selectedBusiness.value = {
-      _id: "test-id",
-      name: "Test Business",
-      address: {
-        street: "123 Test St",
-        city: "Test City",
-        postalCode: "12345",
-        country: "Test Country",
-      },
-      contact: {
-        email: "test@example.com",
-        phone: "123-456-7890",
-      },
-      websiteGeneration: {
-        status: "generated",
-        previewLink: "https://example.com",
-        previewScreenshot: "https://via.placeholder.com/800x600",
-      },
-    };
-  }
-
-  // Initialize email data
-  if (selectedBusiness.value.contact && selectedBusiness.value.contact.email) {
-    emailData.value.recipient = selectedBusiness.value.contact.email;
-  } else {
-    emailData.value.recipient = "client@example.com";
-  }
-
-  emailData.value.subject = `Your Website for ${selectedBusiness.value.name} is Ready!`;
-  emailData.value.body = "";
-  selectedTemplate.value = "";
-
-  // Show the email modal
-  showEmailModal.value = true;
-  console.log("testModal: showEmailModal set to:", showEmailModal.value);
-};
-
-const testDetailsModal = () => {
-  console.log("testDetailsModal called");
-  // Use the first business in the list for testing
-  if (filteredBusinesses.value.length > 0) {
-    selectedBusiness.value = filteredBusinesses.value[0];
-  } else {
-    // Create a dummy business for testing
-    selectedBusiness.value = {
-      _id: "test-id",
-      name: "Test Business",
-      address: {
-        street: "123 Test St",
-        city: "Test City",
-        postalCode: "12345",
-        country: "Test Country",
-      },
-      contact: {
-        email: "test@example.com",
-        phone: "123-456-7890",
-      },
-      websiteGeneration: {
-        status: "generated",
-        previewLink: "https://example.com",
-        previewScreenshot: "https://via.placeholder.com/800x600",
-      },
-    };
-  }
-  showDetailsModal.value = true;
-  console.log(
-    "testDetailsModal: showDetailsModal set to:",
-    showDetailsModal.value
-  );
-
-  // Force a UI update
-  setTimeout(() => {
-    console.log("Checking if details modal is visible in DOM");
-    const modalElements = document.querySelectorAll(".modal");
-    console.log("Modal elements:", modalElements);
-    modalElements.forEach((element, index) => {
-      console.log(
-        `Modal ${index} style display:`,
-        window.getComputedStyle(element).display
-      );
-    });
-  }, 100);
 };
 
 const closeEmailModal = () => {

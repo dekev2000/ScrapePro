@@ -76,15 +76,18 @@
         </div>
 
         <div class="filter-group">
-          <label>Has Contact Info</label>
-          <div class="checkbox-group">
+          <label id="contact-info-label">Informations de contact</label>
+          <div
+            class="checkbox-group"
+            aria-labelledby="contact-info-label"
+          >
             <div class="checkbox-item">
               <input
                 type="checkbox"
                 id="has-phone"
                 v-model="filters.hasPhone"
               />
-              <label for="has-phone">Phone</label>
+              <label for="has-phone">A un téléphone</label>
             </div>
             <div class="checkbox-item">
               <input
@@ -92,7 +95,7 @@
                 id="has-email"
                 v-model="filters.hasEmail"
               />
-              <label for="has-email">Email</label>
+              <label for="has-email">A un email</label>
             </div>
             <div class="checkbox-item">
               <input
@@ -100,7 +103,7 @@
                 id="has-website"
                 v-model="filters.hasWebsite"
               />
-              <label for="has-website">Website</label>
+              <label for="has-website">A un site web</label>
             </div>
           </div>
         </div>
@@ -144,16 +147,18 @@
             <button
               class="btn secondary"
               @click="exportData('csv')"
+              :disabled="isExporting"
             >
-              <i class="fas fa-file-csv"></i>
-              Export CSV
+              <i :class="isExporting ? 'fas fa-spinner fa-spin' : 'fas fa-file-csv'"></i>
+              {{ isExporting ? 'Exportation...' : 'Export CSV' }}
             </button>
             <button
               class="btn secondary"
               @click="exportData('excel')"
+              :disabled="isExporting"
             >
-              <i class="fas fa-file-excel"></i>
-              Export Excel
+              <i :class="isExporting ? 'fas fa-spinner fa-spin' : 'fas fa-file-excel'"></i>
+              {{ isExporting ? 'Exportation...' : 'Export Excel' }}
             </button>
           </div>
         </div>
@@ -328,6 +333,181 @@
               <p class="map-note">This is a placeholder for the actual map implementation</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div
+      v-if="showDetailsModal"
+      class="modal-overlay"
+      @click.self="closeDetailsModal"
+    >
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3>{{ currentItem?.name }}</h3>
+          <button
+            class="close-btn"
+            @click="closeDetailsModal"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div
+          class="modal-body"
+          v-if="currentItem"
+        >
+          <div class="detail-section">
+            <h4>Informations générales</h4>
+            <div class="detail-row">
+              <div class="detail-label">Type d'entreprise</div>
+              <div class="detail-value">{{ currentItem.businessType }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Localisation</div>
+              <div class="detail-value">{{ currentItem.location }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Source</div>
+              <div class="detail-value">{{ formatSource(currentItem.source) }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Date de scraping</div>
+              <div class="detail-value">{{ new Date(currentItem.scrapedAt).toLocaleString() }}</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h4>Coordonnées</h4>
+            <div
+              class="detail-row"
+              v-if="currentItem.contact.phone"
+            >
+              <div class="detail-label">Téléphone</div>
+              <div class="detail-value">
+                <a :href="`tel:${currentItem.contact.phone}`">{{ currentItem.contact.phone }}</a>
+              </div>
+            </div>
+            <div
+              class="detail-row"
+              v-if="currentItem.contact.email"
+            >
+              <div class="detail-label">Email</div>
+              <div class="detail-value">
+                <a :href="`mailto:${currentItem.contact.email}`">{{ currentItem.contact.email }}</a>
+              </div>
+            </div>
+            <div
+              class="detail-row"
+              v-if="currentItem.contact.website"
+            >
+              <div class="detail-label">Site web</div>
+              <div class="detail-value">
+                <a
+                  :href="currentItem.contact.website"
+                  target="_blank"
+                >{{ currentItem.contact.website }}</a>
+              </div>
+            </div>
+            <div
+              class="detail-row"
+              v-if="!currentItem.contact.phone && !currentItem.contact.email && !currentItem.contact.website"
+            >
+              <div class="detail-value empty">Aucune coordonnée disponible</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn secondary"
+            @click="closeDetailsModal"
+          >Fermer</button>
+          <button
+            class="btn primary"
+            @click="editItem(currentItem)"
+          >Modifier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div
+      v-if="showEditModal"
+      class="modal-overlay"
+      @click.self="closeEditModal"
+    >
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3>Modifier {{ currentItem?.name }}</h3>
+          <button
+            class="close-btn"
+            @click="closeEditModal"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div
+          class="modal-body"
+          v-if="currentItem"
+        >
+          <div class="form-group">
+            <label for="edit-name">Nom</label>
+            <input
+              type="text"
+              id="edit-name"
+              v-model="currentItem.name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="edit-business-type">Type d'entreprise</label>
+            <input
+              type="text"
+              id="edit-business-type"
+              v-model="currentItem.businessType"
+            />
+          </div>
+          <div class="form-group">
+            <label for="edit-location">Localisation</label>
+            <input
+              type="text"
+              id="edit-location"
+              v-model="currentItem.location"
+            />
+          </div>
+          <div class="form-group">
+            <label for="edit-phone">Téléphone</label>
+            <input
+              type="text"
+              id="edit-phone"
+              v-model="currentItem.contact.phone"
+            />
+          </div>
+          <div class="form-group">
+            <label for="edit-email">Email</label>
+            <input
+              type="email"
+              id="edit-email"
+              v-model="currentItem.contact.email"
+            />
+          </div>
+          <div class="form-group">
+            <label for="edit-website">Site web</label>
+            <input
+              type="url"
+              id="edit-website"
+              v-model="currentItem.contact.website"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn secondary"
+            @click="closeEditModal"
+          >Annuler</button>
+          <button
+            class="btn primary"
+            @click="saveEditedItem"
+          >Enregistrer</button>
         </div>
       </div>
     </div>
@@ -519,14 +699,72 @@ const uniqueBusinessTypes = computed(() => {
   return new Set(filteredData.value.map((item) => item.businessType)).size;
 });
 
+// State for modals
+const showDetailsModal = ref(false);
+const showEditModal = ref(false);
+const currentItem = ref<any>(null);
+const isExporting = ref(false);
+
+// Helper function to show toast notifications
+const showToast = (
+  type: "filter" | "reset" | "save" | "export",
+  message: string
+) => {
+  // Create toast element
+  const toast = document.createElement("div");
+  toast.className =
+    type === "save" || type === "export"
+      ? "data-explorer-toast success"
+      : "data-explorer-toast";
+
+  // Set icon based on type
+  let icon = "fa-info-circle";
+  if (type === "filter") icon = "fa-filter";
+  if (type === "reset") icon = "fa-undo";
+  if (type === "save") icon = "fa-check";
+  if (type === "export") icon = "fa-file-download";
+
+  // Set content
+  toast.innerHTML = `
+    <div class="toast-icon"><i class="fas ${icon}"></i></div>
+    <div class="toast-message">${message}</div>
+  `;
+
+  // Add to DOM
+  document.body.appendChild(toast);
+
+  // Show toast
+  setTimeout(() => {
+    toast.classList.add("show");
+  }, 100);
+
+  // Hide toast after delay
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3100);
+
+  // Remove from DOM after animation
+  setTimeout(() => {
+    document.body.removeChild(toast);
+  }, 3400);
+};
+
 // Methods
 const applyFilters = () => {
-  // This function is just a placeholder for the button click
-  // The actual filtering is done by the computed property
+  // This function is now more interactive
   console.log("Filters applied:", filters);
+
+  // Show a toast notification
+  const message =
+    filteredData.value.length > 0
+      ? `Filtres appliqués : ${filteredData.value.length} résultats trouvés`
+      : `Aucun résultat ne correspond à vos critères`;
+
+  showToast("filter", message);
 };
 
 const resetFilters = () => {
+  // Reset all filters
   filters.source = "";
   filters.location = "";
   filters.businessType = "";
@@ -535,6 +773,9 @@ const resetFilters = () => {
   filters.hasPhone = false;
   filters.hasEmail = false;
   filters.hasWebsite = false;
+
+  // Show a toast notification
+  showToast("reset", "Filtres réinitialisés");
 };
 
 const formatSource = (source: string) => {
@@ -554,20 +795,116 @@ const formatSource = (source: string) => {
 
 const viewDetails = (item: any) => {
   console.log("View details for:", item.name);
-  // In a real app, this would open a modal with details
-  alert(`Details for ${item.name}`);
+  currentItem.value = item;
+  showDetailsModal.value = true;
+};
+
+const closeDetailsModal = () => {
+  showDetailsModal.value = false;
+  setTimeout(() => {
+    currentItem.value = null;
+  }, 300);
 };
 
 const editItem = (item: any) => {
   console.log("Edit item:", item.name);
-  // In a real app, this would open a modal with a form
-  alert(`Edit ${item.name}`);
+  currentItem.value = { ...item }; // Clone to avoid direct mutation
+  showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  setTimeout(() => {
+    currentItem.value = null;
+  }, 300);
+};
+
+const saveEditedItem = () => {
+  if (!currentItem.value) return;
+
+  // Find the item in the mockData array
+  const index = mockData.findIndex((item) => item.id === currentItem.value.id);
+  if (index !== -1) {
+    // Update the item
+    mockData[index] = { ...currentItem.value };
+
+    // Show a success toast
+    showToast("save", "Modifications enregistrées");
+
+    // Close the modal
+    closeEditModal();
+  }
 };
 
 const exportData = (format: "csv" | "excel") => {
   console.log(`Exporting data as ${format}`);
-  // In a real app, this would generate and download a file
-  alert(`Data exported as ${format.toUpperCase()}`);
+  isExporting.value = true;
+
+  // Simulate export process
+  setTimeout(() => {
+    // Create a CSV or Excel content
+    let content = "";
+
+    if (format === "csv") {
+      // CSV header
+      content =
+        "Name,Business Type,Location,Phone,Email,Website,Source,Scraped At\n";
+
+      // CSV rows
+      filteredData.value.forEach((item) => {
+        content += `"${item.name}","${item.businessType}","${item.location}","${
+          item.contact.phone || ""
+        }","${item.contact.email || ""}","${item.contact.website || ""}","${
+          item.source
+        }","${item.scrapedAt}"\n`;
+      });
+
+      // Create a Blob and download link
+      const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `data-export-${new Date().toISOString().split("T")[0]}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (format === "excel") {
+      // For Excel, we'd normally use a library like SheetJS/xlsx
+      // But for this demo, we'll just create a CSV with a different extension
+      content =
+        "Name\tBusiness Type\tLocation\tPhone\tEmail\tWebsite\tSource\tScraped At\n";
+
+      // Excel rows (tab-separated)
+      filteredData.value.forEach((item) => {
+        content += `${item.name}\t${item.businessType}\t${item.location}\t${
+          item.contact.phone || ""
+        }\t${item.contact.email || ""}\t${item.contact.website || ""}\t${
+          item.source
+        }\t${item.scrapedAt}\n`;
+      });
+
+      // Create a Blob and download link
+      const blob = new Blob([content], { type: "application/vnd.ms-excel" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `data-export-${new Date().toISOString().split("T")[0]}.xls`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    isExporting.value = false;
+
+    // Show a success toast
+    showToast("export", `Données exportées au format ${format.toUpperCase()}`);
+  }, 1000); // Simulate a delay for the export process
 };
 </script>
 
@@ -933,6 +1270,196 @@ const exportData = (format: "csv" | "excel") => {
   font-size: 14px;
 }
 
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Detail Styles */
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-section h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.detail-label {
+  width: 150px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.detail-value {
+  flex: 1;
+  color: #111827;
+}
+
+.detail-value a {
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+.detail-value a:hover {
+  text-decoration: underline;
+}
+
+.detail-value.empty {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Form Styles for Edit Modal */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Toast Notifications */
+.data-explorer-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 1100;
+}
+
+.data-explorer-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.data-explorer-toast.success {
+  border-left: 4px solid #10b981;
+}
+
+.data-explorer-toast.success .toast-icon {
+  color: #10b981;
+}
+
+.toast-icon {
+  font-size: 18px;
+  color: #4f46e5;
+}
+
+.toast-message {
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .explorer-container {
@@ -941,6 +1468,20 @@ const exportData = (format: "csv" | "excel") => {
 
   .filters-panel {
     width: 100%;
+  }
+
+  .modal-container {
+    width: 90%;
+    max-height: 80vh;
+  }
+
+  .detail-row {
+    flex-direction: column;
+  }
+
+  .detail-label {
+    width: 100%;
+    margin-bottom: 4px;
   }
 }
 </style>

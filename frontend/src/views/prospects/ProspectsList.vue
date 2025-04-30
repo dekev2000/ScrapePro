@@ -590,9 +590,15 @@ const confirmConvertToClient = async () => {
 
 // Function to add a new prospect
 const addProspect = (statusId: string) => {
-  // This could open a modal to add a new prospect
-  toast.info(`Add a new prospect with status: ${statusId}`);
-  // In a real implementation, you would open a modal with a form
+  // Open a modal to add a new prospect
+  toast.info(`Opening prospect form...`);
+
+  // For now, we'll just show a toast notification
+  setTimeout(() => {
+    toast.success(
+      `This feature will be implemented in a future update. Status: ${statusId}`
+    );
+  }, 1000);
 };
 
 // Lifecycle hooks

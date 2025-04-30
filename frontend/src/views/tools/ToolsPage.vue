@@ -6,17 +6,23 @@
     </div>
 
     <div class="tools-grid">
-      <div class="tool-card" @click="navigateTo('/dashboard/tools/email-builder')">
+      <div
+        class="tool-card"
+        @click="navigateTo('/dashboard/email-templates')"
+      >
         <div class="tool-icon">
-          <i class="fas fa-envelope"></i>
+          <i class="fas fa-envelope-open-text"></i>
         </div>
         <div class="tool-info">
-          <h3>Email Builder</h3>
-          <p>Create and customize email templates for your outreach campaigns</p>
+          <h3>Email Templates</h3>
+          <p>Create and manage email templates for your outreach campaigns</p>
         </div>
       </div>
 
-      <div class="tool-card" @click="navigateTo('/dashboard/tools/website-builder')">
+      <div
+        class="tool-card"
+        @click="navigateTo('/dashboard/tools/website-builder')"
+      >
         <div class="tool-icon">
           <i class="fas fa-desktop"></i>
         </div>
@@ -26,7 +32,10 @@
         </div>
       </div>
 
-      <div class="tool-card" @click="navigateTo('/dashboard/tools/data-import')">
+      <div
+        class="tool-card"
+        @click="navigateTo('/dashboard/tools/data-import')"
+      >
         <div class="tool-icon">
           <i class="fas fa-file-import"></i>
         </div>
@@ -36,7 +45,10 @@
         </div>
       </div>
 
-      <div class="tool-card" @click="navigateTo('/dashboard/tools/data-export')">
+      <div
+        class="tool-card"
+        @click="navigateTo('/dashboard/tools/data-export')"
+      >
         <div class="tool-icon">
           <i class="fas fa-file-export"></i>
         </div>
@@ -46,7 +58,10 @@
         </div>
       </div>
 
-      <div class="tool-card" @click="navigateTo('/dashboard/tools/api-keys')">
+      <div
+        class="tool-card"
+        @click="navigateTo('/dashboard/tools/api-keys')"
+      >
         <div class="tool-icon">
           <i class="fas fa-key"></i>
         </div>
@@ -56,7 +71,10 @@
         </div>
       </div>
 
-      <div class="tool-card" @click="navigateTo('/dashboard/tools/bulk-actions')">
+      <div
+        class="tool-card"
+        @click="navigateTo('/dashboard/tools/bulk-actions')"
+      >
         <div class="tool-icon">
           <i class="fas fa-tasks"></i>
         </div>
@@ -68,7 +86,10 @@
     </div>
 
     <!-- Placeholder for tool content -->
-    <div v-if="selectedTool" class="tool-content">
+    <div
+      v-if="selectedTool"
+      class="tool-content"
+    >
       <h2>{{ selectedTool }}</h2>
       <p>This tool is coming soon!</p>
     </div>
@@ -76,17 +97,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
-const selectedTool = ref('');
+const selectedTool = ref("");
 
 const navigateTo = (path: string) => {
-  selectedTool.value = path.split('/').pop() || '';
+  selectedTool.value = path.split("/").pop() || "";
   console.log(`Navigating to ${path}`);
-  // In a real app, this would navigate to the tool page
-  // router.push(path);
+  router.push(path);
 };
 </script>
 

@@ -4,7 +4,7 @@ type Theme = 'light' | 'dark' | 'system'
 
 export function useTheme() {
   const theme = ref<Theme>(
-    localStorage.getItem('theme') as Theme || 'system'
+    localStorage.getItem('theme') as Theme || 'light'
   )
   const systemDarkMode = ref(false)
   const isDarkMode = ref(false)

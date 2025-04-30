@@ -598,17 +598,9 @@
                   target="_blank"
                   class="btn primary"
                 >
-                  <i class="fas fa-external-link-alt"></i>
-                  Open in New Tab
+                  <i class="fas fa-camera"></i>
+                  Capture Screenshot
                 </a>
-                <button
-                  class="btn primary"
-                  @click="openPreviewInNewTab"
-                  :disabled="isCapturing"
-                >
-                  <i class="fas fa-external-link-alt"></i>
-                  Open for Screenshot
-                </button>
               </div>
 
               <!-- iframe note removed -->

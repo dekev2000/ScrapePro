@@ -50,19 +50,6 @@
       <div class="login-footer">
         <p>Don't have an account? <router-link to="/auth/register">Register</router-link></p>
         <p><router-link to="/auth/forgot-password">Forgot password?</router-link></p>
-        <hr class="footer-divider" />
-        <p class="troubleshooting">
-          Connection issues? Try our
-          <router-link to="/test-connection">Connection Test</router-link>,
-          <a
-            href="/test-cors.html"
-            target="_blank"
-          >CORS Test</a> or
-          <a
-            href="/connection-test.html"
-            target="_blank"
-          >Advanced Test</a>
-        </p>
       </div>
     </div>
   </div>
@@ -217,25 +204,4 @@ const handleLogin = async () => {
 .login-footer p {
   margin: 0.5rem 0;
 }
-
-.footer-divider {
-  border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 1.5rem 0;
-}
-
-.troubleshooting {
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.troubleshooting a {
-  color: #4c6ef5;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.troubleshooting a:hover {
-  text-decoration: underline;
-}
-</style> 
+</style>

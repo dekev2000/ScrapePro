@@ -475,6 +475,93 @@ export const useBusinessStore = defineStore('business', () => {
     }
   }
 
+  // Import businesses from Google Places API
+  const importBusinesses = async (businessesData: any[]) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      // In a real app, this would call the API
+      // const response = await axios.post('/businesses/import', { businesses: businessesData })
+
+      // For now, we'll simulate a successful response
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      const importedBusinesses = []
+
+      for (const businessData of businessesData) {
+        // Create a new business with data from Google Places
+        const newBusiness = {
+          _id: `google-${businessData.source.id}`,
+          name: businessData.name,
+          status: 'prospect', // Default to prospect
+          address: {
+            street: businessData.address.street || '',
+            city: businessData.address.city || 'Unknown',
+            postalCode: businessData.address.postalCode || '',
+            region: businessData.address.region || '',
+            country: businessData.address.country || 'France',
+            coordinates: businessData.address.coordinates || undefined
+          },
+          contact: {
+            phone: businessData.contact.phone || '',
+            email: businessData.contact.email || '',
+            website: businessData.website || ''
+          },
+          business: {
+            type: businessData.business.type || 'Other',
+            nafCode: '',
+            siret: '',
+            siren: ''
+          },
+          scrapingData: {
+            source: businessData.source.type || 'google_maps',
+            scrapedBy: 'user',
+            scrapedAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString()
+          },
+          websiteGeneration: {
+            status: 'not_generated'
+          },
+          emailOutreach: {
+            status: 'not_sent'
+          },
+          tags: businessData.tags || [],
+          notes: businessData.notes || '',
+          active: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        } as Business
+
+        // Check if business already exists
+        const existingIndex = businesses.value.findIndex(b => b._id === newBusiness._id)
+
+        if (existingIndex !== -1) {
+          // Update existing business
+          businesses.value[existingIndex] = {
+            ...businesses.value[existingIndex],
+            ...newBusiness,
+            updatedAt: new Date().toISOString()
+          }
+          importedBusinesses.push(businesses.value[existingIndex])
+        } else {
+          // Add new business
+          businesses.value.push(newBusiness)
+          importedBusinesses.push(newBusiness)
+        }
+      }
+
+      console.log(`Imported ${importedBusinesses.length} businesses from Google Places API`)
+      return importedBusinesses
+    } catch (err: any) {
+      console.error('Error importing businesses:', err)
+      error.value = err.message || 'Failed to import businesses'
+      throw error.value
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     businesses,
     currentBusiness,
@@ -494,6 +581,7 @@ export const useBusinessStore = defineStore('business', () => {
     generateWebsitePreview,
     approveWebsitePreview,
     rejectWebsitePreview,
-    sendBusinessEmail
+    sendBusinessEmail,
+    importBusinesses
   }
 })

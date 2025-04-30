@@ -9,7 +9,7 @@ import { setupMockApi } from './services/mockApi'
 import { setupMockAuth } from './services/mockAuth'
 
 // Configure axios
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+axios.defaults.baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api'
 axios.defaults.withCredentials = true // Enable cookies for cross-domain requests
 
 axios.interceptors.request.use(config => {
@@ -34,7 +34,7 @@ app.use(router)
 
 app.mount('#app')
 
-// Add Font Awesome (would normally be added via package.json and imported properly)
+// Add Font Awesome
 const fontAwesomeCDN = document.createElement('link')
 fontAwesomeCDN.rel = 'stylesheet'
 fontAwesomeCDN.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'

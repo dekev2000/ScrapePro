@@ -44,6 +44,14 @@
             <span>Preview Sites</span>
           </router-link>
           <router-link
+            to="/dashboard/businesses"
+            class="nav-item"
+            active-class="active"
+          >
+            <i class="fas fa-store"></i>
+            <span>Entreprises</span>
+          </router-link>
+          <router-link
             to="/dashboard/prospects"
             class="nav-item"
             active-class="active"
@@ -145,14 +153,7 @@
             <i class="fas fa-users-cog"></i>
             <span>Team</span>
           </router-link>
-          <router-link
-            to="/dashboard/billing"
-            class="nav-item"
-            active-class="active"
-          >
-            <i class="fas fa-credit-card"></i>
-            <span>Billing</span>
-          </router-link>
+
         </nav>
       </div>
 

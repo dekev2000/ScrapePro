@@ -13,10 +13,10 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: '*', // Allow all origins during development
+  origin: ['http://localhost:5173', 'http://localhost:8080', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: true,
+  credentials: true, // Changed to true to allow credentials
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
@@ -32,6 +32,7 @@ const scrapingRoutes = require('./routes/scraping');
 const businessRoutes = require('./routes/businesses');
 const emailRoutes = require('./routes/emails');
 const analyticsRoutes = require('./routes/analytics');
+const googlePlacesProxyRoutes = require('./routes/googlePlacesProxy');
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -40,6 +41,7 @@ app.use('/api/scraping', scrapingRoutes);
 app.use('/api/businesses', businessRoutes);
 app.use('/api/emails', emailRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/google-places', googlePlacesProxyRoutes);
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {

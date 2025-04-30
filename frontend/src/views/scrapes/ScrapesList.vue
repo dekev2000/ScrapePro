@@ -2,13 +2,22 @@
   <div class="scrapes-list">
     <div class="scrapes-header">
       <h1>Scraping Jobs</h1>
-      <router-link
-        to="/dashboard/scrape-builder"
-        class="new-scrape-btn"
-      >
-        <i class="fas fa-plus"></i>
-        New Scrape
-      </router-link>
+      <div class="header-buttons">
+        <router-link
+          to="/dashboard/google-places-test"
+          class="google-places-btn"
+        >
+          <i class="fas fa-map-marker-alt"></i>
+          Google Places API
+        </router-link>
+        <router-link
+          to="/dashboard/scrape-builder"
+          class="new-scrape-btn"
+        >
+          <i class="fas fa-plus"></i>
+          New Scrape
+        </router-link>
+      </div>
     </div>
 
     <div class="filters">
@@ -559,6 +568,11 @@ onUnmounted(() => {
   margin-bottom: 24px;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 12px;
+}
+
 .new-scrape-btn {
   display: flex;
   align-items: center;
@@ -574,6 +588,23 @@ onUnmounted(() => {
 
 .new-scrape-btn:hover {
   background-color: #3730a3;
+}
+
+.google-places-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #10b981;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.google-places-btn:hover {
+  background-color: #059669;
 }
 
 .filters {

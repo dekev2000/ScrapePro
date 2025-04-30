@@ -1,121 +1,152 @@
 /**
- * DeepSite Watermark Remover
+ * DeepSite Watermark Remover - Content Script
  * 
- * This content script automatically detects and removes the DeepSite watermark
- * from Hugging Face static preview URLs.
+ * This script runs on DeepSite static pages and removes the watermark.
  */
 
 // Function to remove the DeepSite watermark
 function removeDeepSiteWatermark() {
-  // Look for the watermark by its specific style and content
-  const watermarks = document.querySelectorAll('p[style*="position: fixed"][style*="bottom: 8px"][style*="z-index: 10"]');
+  console.log('DeepSite Watermark Remover: Checking for watermarks...');
   
-  // Also look for any elements containing the DeepSite logo or text
-  const possibleWatermarks = document.querySelectorAll('p:has(a[href*="deepsite.hf.space"])');
+  // Add CSS to hide watermarks
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Hide watermark elements */
+    [style*="position: fixed"][style*="bottom: 8px"],
+    [style*="position: fixed"][style*="z-index: 10"],
+    a[href*="deepsite"],
+    a[href*="huggingface"],
+    img[src*="logo.svg"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+    
+    /* Create a blocking overlay at the bottom left corner */
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 300px;
+      height: 50px;
+      background-color: inherit;
+      z-index: 9999;
+    }
+  `;
+  document.head.appendChild(style);
   
-  // Combine the results
-  const allWatermarks = [...watermarks, ...possibleWatermarks];
-  
-  // If we found any watermarks, remove them
-  if (allWatermarks.length > 0) {
-    console.log(`DeepSite Watermark Remover: Found ${allWatermarks.length} watermark(s)`);
-    
-    allWatermarks.forEach(watermark => {
-      // Check if it's really a DeepSite watermark by looking for specific text or elements
-      if (
-        watermark.innerHTML.includes('DeepSite') || 
-        watermark.innerHTML.includes('enzostvs-deepsite.hf.space')
-      ) {
-        // Remove the watermark
-        watermark.remove();
-        console.log('DeepSite Watermark Remover: Watermark removed successfully');
-      }
-    });
-    
-    // Send a message to the background script to update the icon
-    chrome.runtime.sendMessage({ action: "watermarkRemoved" });
-    
-    // Show a notification to the user
-    showNotification();
-  } else {
-    console.log('DeepSite Watermark Remover: No watermark found');
+  // Execute JavaScript to remove watermarks
+  // Target the exact watermark we know exists
+  const exactWatermarkSelector = 'p[style*="border-radius: 8px"][style*="text-align: center"][style*="position: fixed"][style*="left: 8px"][style*="bottom: 8px"]';
+  const exactWatermark = document.querySelector(exactWatermarkSelector);
+
+  if (exactWatermark) {
+    console.log('DeepSite Watermark Remover: Found exact watermark, removing it');
+    exactWatermark.remove();
   }
+  
+  // Remove all elements with specific attributes
+  document.querySelectorAll('[style*="position: fixed"][style*="bottom: 8px"]').forEach(el => {
+    console.log('DeepSite Watermark Remover: Removing fixed positioned element at bottom');
+    el.remove();
+  });
+  
+  // Remove all links to DeepSite
+  document.querySelectorAll('a[href*="deepsite"], a[href*="huggingface"], a[href*="remix"]').forEach(el => {
+    console.log('DeepSite Watermark Remover: Removing DeepSite link');
+    el.remove();
+  });
+  
+  // Remove all DeepSite logo images
+  document.querySelectorAll('img[src*="logo.svg"], img[alt*="DeepSite"]').forEach(el => {
+    console.log('DeepSite Watermark Remover: Removing DeepSite logo');
+    el.remove();
+  });
+  
+  // Create an overlay to cover any remaining watermarks
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.bottom = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '300px';
+  overlay.style.height = '50px';
+  overlay.style.backgroundColor = 'white';
+  overlay.style.zIndex = '9999';
+  document.body.appendChild(overlay);
+  
+  // Show a notification
+  showNotification();
 }
 
-// Function to show a notification to the user
+// Function to show a notification that the watermark was removed
 function showNotification() {
-  // Create a notification element
+  // Create notification element
   const notification = document.createElement('div');
   notification.style.position = 'fixed';
   notification.style.top = '20px';
   notification.style.right = '20px';
-  notification.style.backgroundColor = '#4CAF50';
+  notification.style.backgroundColor = 'rgba(16, 185, 129, 0.9)';
   notification.style.color = 'white';
-  notification.style.padding = '10px 20px';
-  notification.style.borderRadius = '5px';
-  notification.style.zIndex = '9999';
-  notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-  notification.style.transition = 'opacity 0.5s ease-in-out';
+  notification.style.padding = '12px 16px';
+  notification.style.borderRadius = '8px';
+  notification.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+  notification.style.zIndex = '10000';
+  notification.style.display = 'flex';
+  notification.style.alignItems = 'center';
+  notification.style.gap = '8px';
+  notification.style.fontFamily = 'Arial, sans-serif';
+  notification.style.fontSize = '14px';
+  notification.style.transform = 'translateY(-20px)';
   notification.style.opacity = '0';
-  notification.textContent = 'DeepSite watermark removed! Ready for screenshot.';
+  notification.style.transition = 'transform 0.3s, opacity 0.3s';
   
-  // Add the notification to the page
+  // Add icon and text
+  notification.innerHTML = `
+    <div style="font-size: 18px;">✓</div>
+    <div>DeepSite watermark removed successfully!</div>
+  `;
+  
+  // Add to page
   document.body.appendChild(notification);
   
-  // Fade in the notification
+  // Show notification with animation
   setTimeout(() => {
+    notification.style.transform = 'translateY(0)';
     notification.style.opacity = '1';
-  }, 100);
-  
-  // Remove the notification after 3 seconds
-  setTimeout(() => {
-    notification.style.opacity = '0';
-    setTimeout(() => {
-      notification.remove();
-    }, 500);
-  }, 3000);
-}
-
-// Alternative approach using MutationObserver to handle dynamically loaded content
-function setupMutationObserver() {
-  // Create a new observer
-  const observer = new MutationObserver((mutations) => {
-    // Check if any of the mutations might have added a watermark
-    const shouldCheck = mutations.some(mutation => {
-      return mutation.addedNodes.length > 0 && 
-             Array.from(mutation.addedNodes).some(node => 
-               node.nodeType === Node.ELEMENT_NODE && 
-               (node.tagName === 'P' || node.innerHTML?.includes('DeepSite'))
-             );
-    });
     
-    // If we think a watermark might have been added, try to remove it
-    if (shouldCheck) {
-      removeDeepSiteWatermark();
-    }
-  });
-  
-  // Start observing the document body for changes
-  observer.observe(document.body, { 
-    childList: true, 
-    subtree: true 
-  });
-  
-  return observer;
+    // Hide and remove after 3 seconds
+    setTimeout(() => {
+      notification.style.transform = 'translateY(-20px)';
+      notification.style.opacity = '0';
+      
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 300);
+    }, 3000);
+  }, 100);
 }
 
 // Run the watermark removal when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-  // Try to remove any watermarks that are already on the page
+removeDeepSiteWatermark();
+
+// Set up a MutationObserver to detect and remove dynamically added watermarks
+const observer = new MutationObserver(function(mutations) {
   removeDeepSiteWatermark();
-  
-  // Set up an observer to catch any watermarks that might be added later
-  const observer = setupMutationObserver();
-  
-  // Also try again after a short delay, in case the watermark is added after the page loads
-  setTimeout(removeDeepSiteWatermark, 1000);
-  setTimeout(removeDeepSiteWatermark, 2000);
 });
 
-// Run immediately in case the DOM is already loaded
-removeDeepSiteWatermark();
+// Start observing the document with the configured parameters
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ['style', 'class']
+});
+
+// Listen for messages from the background script or popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'removeWatermark') {
+    removeDeepSiteWatermark();
+    sendResponse({ success: true });
+  }
+});

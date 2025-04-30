@@ -3,6 +3,15 @@
     <div class="builder-header">
       <h1>Scrape Builder</h1>
       <p class="subtitle">Create and configure a new scraping job</p>
+      <div class="header-actions">
+        <router-link
+          to="/dashboard/google-places-test"
+          class="google-places-btn"
+        >
+          <i class="fas fa-map-marker-alt"></i>
+          Test Google Places API
+        </router-link>
+      </div>
     </div>
 
     <div class="builder-container">
@@ -666,6 +675,8 @@ const createScrapeJob = async () => {
 
 .builder-header {
   margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .builder-header h1 {
@@ -678,6 +689,30 @@ const createScrapeJob = async () => {
 .subtitle {
   color: #6b7280;
   font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.google-places-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #4f46e5;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.google-places-btn:hover {
+  background-color: #4338ca;
 }
 
 .builder-container {

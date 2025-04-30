@@ -13,17 +13,19 @@ const Scrapes = () => import('../views/scrapes/ScrapesList.vue')
 const PreviewSites = () => import('../views/previews/PreviewsList.vue')
 const Prospects = () => import('../views/prospects/ProspectsList.vue')
 const Clients = () => import('../views/clients/ClientsList.vue')
+const Businesses = () => import('../views/BusinessesView.vue')
 const ScrapeBuilder = () => import('../views/tools/ScrapeBuilder.vue')
 const SiteDesigner = () => import('../views/tools/SiteDesigner.vue')
 const TasksKanban = () => import('../views/tasks/TasksKanban.vue')
 const FullscreenPreview = () => import('../views/tools/FullscreenPreview.vue')
 const DataExplorer = () => import('../views/tools/DataExplorer.vue')
 const ToolsPage = () => import('../views/tools/ToolsPage.vue')
+const EmailTemplateManager = () => import('../views/tools/EmailTemplateManager.vue')
 const Account = () => import('../views/settings/Account.vue')
 const Team = () => import('../views/settings/Team.vue')
-const Billing = () => import('../views/settings/Billing.vue')
+const GooglePlacesTest = () => import('../components/scrapes/GooglePlacesTest.vue')
+
 const SettingsPage = () => import('../views/settings/SettingsPage.vue')
-const TestConnection = () => import('../views/TestConnection.vue')
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,16 +38,7 @@ const routes: Array<RouteRecordRaw> = [
       title: 'Web Scraping & Preview Sites'
     }
   },
-  {
-    path: '/test-connection',
-    name: 'TestConnection',
-    component: TestConnection,
-    meta: {
-      requiresAuth: false,
-      layout: 'default',
-      title: 'API Connection Test'
-    }
-  },
+
   {
     path: '/auth/login',
     name: 'Login',
@@ -126,6 +119,14 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
+        path: 'businesses',
+        name: 'Businesses',
+        component: Businesses,
+        meta: {
+          title: 'Entreprises'
+        }
+      },
+      {
         path: 'prospects',
         name: 'Prospects',
         component: Prospects,
@@ -166,6 +167,14 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
+        path: 'email-templates',
+        name: 'EmailTemplateManager',
+        component: EmailTemplateManager,
+        meta: {
+          title: 'Email Templates'
+        }
+      },
+      {
         path: 'account',
         name: 'Account',
         component: Account,
@@ -181,20 +190,21 @@ const routes: Array<RouteRecordRaw> = [
           title: 'Team'
         }
       },
-      {
-        path: 'billing',
-        name: 'Billing',
-        component: Billing,
-        meta: {
-          title: 'Billing'
-        }
-      },
+
       {
         path: 'tools',
         name: 'Tools',
         component: ToolsPage,
         meta: {
           title: 'Tools'
+        }
+      },
+      {
+        path: 'google-places-test',
+        name: 'GooglePlacesTest',
+        component: GooglePlacesTest,
+        meta: {
+          title: 'Google Places API Test'
         }
       },
       {
